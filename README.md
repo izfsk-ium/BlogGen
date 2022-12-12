@@ -1,0 +1,2 @@
+# BlogGen
+Blog generator
