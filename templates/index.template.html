@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en,zh_CN">
+
+<head>
+    <link rel=preload href=/res/TW-Sung-98_1-index.woff2 as=font type=font/woff2 crossorigin>
+    <link rel=preload href=/res/EBGaramond.woff2 as=font type=font/woff2 crossorigin>
+    <link ref=preload href=/res/HWYGOTH-4.woff2 as=font type=font/woff2 crossorigin>
+    <meta charset=utf-8>
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <title>Izfsk::Blog</title>
+    <meta property=og:title content=Izfsk::Blog>
+    <meta name=author content=izfsk>
+    <meta property=og:locale content=en_US,zh_CN>
+    <meta name=description content="izfsk's blog and cyber space">
+    <meta property=og:description content="izfsk's blog and cyber space">
+    <meta property=og:site_name content="izfsk's blog">
+    <link rel=stylesheet href=/res/index.css>
+    <link rel=stylesheet href=/res/fonts.css>
+    <style>
+        @font-face {
+            font-family: "twsung";
+            src: url("/res/TW-Sung-98_1-index.woff2");
+        }
+
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip:hover:after {
+            content: attr(data-tooltip);
+            background: #000;
+            color: #FFF;
+            text-align: center;
+            border-radius: 3px;
+            padding: 5px;
+            display: inline-block;
+            position: absolute;
+            transform: translate(-50%, -100%);
+            left: 50%;
+        }
+    </style>
+    <style id=animes>
+        @keyframes de_blur {
+            0% {
+                filter: blur(8px);
+            }
+
+            100% {
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes p6 {
+            100% {
+                inset: 0
+            }
+        }
+
+        @keyframes exit {
+            0% {
+                transform: rotateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: rotateY(70deg);
+                opacity: 0;
+
+            }
+        }
+
+        @keyframes remove {
+            100% {
+                display: none;
+                z-index: -999;
+            }
+        }
+
+        @keyframes buttomitem {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(1000px);
+            }
+        }
+
+        @keyframes topitem {
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(-1000px);
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            section {
+                background-color: #000;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+
+            section {
+                background-color: white;
+            }
+        }
+
+        #loading {
+            z-index: 999;
+            position: fixed;
+            background-color: transparent;
+            width: 100vw;
+            height: 100vh;
+            text-align: center;
+            animation-delay: 1.55s !important;
+            animation: remove 0.45s both;
+        }
+
+        #inner {
+            animation-delay: 1.325s !important;
+            animation: exit 0.45s cubic-bezier(0.550, 0.085, 0.680, 0.530) both;
+        }
+
+        section {
+            width: 100%;
+            height: 50%;
+        }
+
+        #topitem {
+            animation-delay: 1.325s !important;
+            animation: topitem 1s both;
+        }
+
+        #buttomitem {
+            animation-delay: 1.325s !important;
+            animation: buttomitem 1s both;
+        }
+
+        #loadingp {
+            padding: 10px 10px 10px 25px;
+        }
+
+        #loading>div {
+            position: absolute;
+            margin: auto;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            width: 100px;
+            height: 100px;
+            border-radius: 3px;
+        }
+
+        .progress-load {
+            width: 120px;
+            height: 22px;
+            color: #514b82;
+            border: 2px solid;
+            position: absolute;
+            margin: auto;
+            background-color: #ccc;
+            border-radius: 3px;
+        }
+
+        .progress-load::before {
+            content: "";
+            position: absolute;
+            margin: 2px;
+            inset: 0 100% 0 0;
+            border-radius: inherit;
+            background: #514b82;
+            animation: p6 2s infinite;
+        }
+
+        main {
+            filter: blur(25px);
+            animation-delay: 1.325s !important;
+            animation: de_blur 0.75s ease-in both;
+        }
+    </style>
+</head>
+
+<body a="auto">
+    <div id=loading>
+        <section id=topitem></section>
+        <section id=buttomitem></section>
+        <div id=inner>
+            <div class=progress-load></div>
+            <p id=loadingp> <em style="font-family: monospace;">OwO</em> </p>
+        </div>
+    </div>
+    <main class="page-content" aria-label="Content">
+        <div>
+            <header>
+                <h1>Izfsk's CyberSpace</h1>
+            </header>
+            <small id=quota class="tooltip" data-tooltip="<!-- GENERATE INFO -->">請輕吻我心中的傷痛，伴我走完漫長的路~~~</small>
+            <br />
+            <ul>
+                <ul>
+                    <p style="font-size: 20px;">你好。</p>
+                    <p>欢迎来到<a href="/specs/about.html">我</a>的博客。</p>
+                </ul>
+
+                <li class="l1">Recent posts</li>
+                <ul>
+                    <!-- RECENT_POSTS -->
+                    <li><a href="/specs/archives.html">See archive...</a></li>
+                </ul>
+
+                <li class="l1">Miscellaneous</li>
+                <ul>
+                    <p>
+                        点击<a href="/specs/categories.html">这里</a>按照分类查看博文，或者点击<a
+                            href="/specs/tags.html">这里</a>按照标签查看。
+                    </p>
+                    <p>
+                        <a href="/specs/friends.html">这里</a>是本站的友情链接。如果你也想交个朋友的话，欢迎找我添加你的链接！
+                        使用<a href="mailto://izfsk@outlook.com">电子邮件</a>来联系我，并请注明来意。 Friendship is magic!
+                    </p>
+                    <p>
+                        这个博客还存放了我的<a href="/specs/bookmarks.html">书签</a>，
+                        <a href="/specs/tv.html">收藏</a>，一些<a href="/specs/repos.html">小项目</a>以及<a
+                            href="/specs/fs.html">文件资源</a>可供君一览。
+                    </p>
+                </ul>
+
+                <li class="l1">About this blog</li>
+                <ul>
+                    <p>
+                        我曾经使用过 jekyll, hugo, heox, 却发现自己迷失于配置主题样式中，而博客的目的────产出内容却完全没有做到。
+                        因此，我决定不用这些复杂的工具，只使用简单的 HTML 和 CSS 。
+                    </p>
+                    <p>
+                        这个博客主要使用 pandoc, 外加一系列 shell 和 python 脚本构建。页面样式修改自一个 <a
+                            href="https://github.com/riggraz/no-style-please">jekyll</a> 主题和
+                        <a href="https://jez.io/pandoc-markdown-css-theme/"> Pandoc 模板</a>。如果感兴趣，不妨在<a
+                            href="/rss.xml">这里</a>订阅 RSS。
+                    </p>
+                </ul>
+            </ul>
+            <br />
+            <small>Copyright&nbsp;©&nbsp;2022 izfsk</small><br />
+            <small>A site without Javascript and Cookies.</small><br />
+            <small>This site is licensed under&nbsp;<a href="https://creativecommons.org/licenses/by-nc-sa/2.5/cn/">CC
+                    BY-NC-SA 2.5 CN</a></small>
+        </div>
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$" $if(dir)$ dir="$dir$" $endif$>
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="preload" href="./assets/TW-Sung-98_1.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="./assets/CJgaodeguomh.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/res/HWYGOTH-4.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/res/EBGaramond.woff2" as="font" type="font/woff2" crossorigin>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    $for(author-meta)$
+    <meta name="author" content="$author-meta$" />
+    $endfor$
+    $if(date-meta)$
+    <meta name="dcterms.date" content="$date-meta$" />
+    $endif$
+    $if(keywords)$
+    <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+    $endif$
+    $if(description-meta)$
+    <meta name="description" content="$description-meta$" />
+    $endif$
+    <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+    $for(css)$
+    <link rel="stylesheet" href="$css$" />
+    $endfor$
+    $if(math)$
+    $math$
+    $endif$
+    $for(header-includes)$
+    $header-includes$
+    $endfor$
+    <!-- EXTERNS -->
+    <!-- FONTS -->
+</head>
+
+<body>
+    $for(include-before)$
+    $include-before$
+    $endfor$
+    <a id="to-top" href="#"></a>
+    <header>
+        <!--TITLE-->
+        <div>
+            <h1 class="title">$title$</h1>
+            $if(subtitle)$
+            <p class="subtitle">$subtitle$</p>
+            $endif$
+        </div>
+
+        <div class="metadata" id="page_top">
+            <br />
+
+            <!--AUTHOR-->
+            $if(author)$
+            <span class="author">
+                $if(author-url)$
+                <p>Author : <a href="$author-url$">$author$</a></p>
+            </span>
+            $else$
+            <span>Author : </span>$author$
+            $endif$
+            $endif$
+            <br />
+
+            <!--DATE-->
+            $if(date)$
+            <span class="date $if(toc)$before-toc$endif$">Created: <time datetime="$date$">$date$</time></span>
+            <!-- LASTMODIFY -->
+            $endif$
+
+            <!--CATEGORY-->
+            $if(category)$
+            <p class="category">Category : <code>$category$</code></p>
+            $endif$
+
+            <!--TAGS-->
+            $if(tags)$
+            <span>Tags : $for(tags)$ <b>$tags$,</b> $endfor$</span>
+            $endif$
+
+        </div>
+        <hr />
+    </header>
+
+    $if(toc)$
+    <nav id="$idprefix$TOC" role="doc-toc">
+        <a href="/">← Return</a><br>
+        <strong>目录</strong>
+        <input type="checkbox" id="contents">
+        $table-of-contents$
+        <a href="#page_top"><em>返回顶部</em></a>
+    </nav>
+    $endif$
+
+    <main>
+        $body$
+    </main>
+
+    <!--BACK TO INDEX-->
+    <footer>
+        <hr />
+
+        <form id="comment_area">
+            <textarea placeholder="输入你的评论..."></textarea>
+            <div>
+                <div style="display: flex;">
+                    <input type="text" class="comment_ipts" placeholder="Name">
+                    <input type="text" class="comment_ipts" placeholder="E-Mail">
+                </div>
+                <button class="comment_commit" disabled>暂不可用</button>
+            </div>
+        </form>
+
+        <p class="signoff">
+
+        </p>
+    </footer>
+
+    <div id="copyright">
+        <small>Copyright&nbsp;©&nbsp;2022 izfsk</small><br />
+        
+        <small>Licensed under&nbsp;<!-- LICENSE --></small>
+    </div>
+    $for(include-after)$
+    $include-after$
+    $endfor$
+
+</body>
+
+</html>
