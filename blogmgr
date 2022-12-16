@@ -1,0 +1,269 @@
+#!/bin/python3
+
+"""
+izfsk's Blog manage system main interface
+"""
+
+from lib.metadata import BlogArticles, ArticleMetaData
+from lib.blog_utils import BlogUtils
+from build import BlogGen
+
+from uuid import uuid4
+from datetime import datetime
+from argparse import ArgumentParser
+from itertools import chain
+from subprocess import call, TimeoutExpired
+
+import os
+import shutil
+
+
+class Templates:
+    MarkdownFileTemplate = """---
+title: {title}
+date: {date}
+author: izfsk
+tags: {tags}
+category: {category}
+---
+"""
+
+    TOMLFileTemplate = """
+# Title of this article
+title = '{title}'
+description = \"\"\"\"\"\"    # left empty to auto-generate
+uuid = "{uuid}" # auto-generated for comment
+
+# article data
+[metadata]
+created = {created}
+author =  'izfsk'
+credit = 'default'  # default is CC-BY-NC-SA 2.0 CN
+isDraft = false
+isOutdated = false
+
+[category]
+tags = {tags}
+category = {category}
+
+[options]
+updateLastModifyDate = true
+allowComment = false    # user js and css should be put in ./assets/js and ./assets/css
+allowUserCSS = false    # these links are inserted into page header
+externCSSLinks = []
+"""
+
+
+class Printer:
+    @staticmethod
+    def pretty_print_article(article: ArticleMetaData, no: int | None = None):
+        print(
+            f'{f"{no} " if no else ""}{article.uuid} {"Draft  " if article.isDraft else "Article"} {article.createDate.strftime("%Y-%m-%d")} {article.author} {article.category:4} 《{article.title}》 with tags {"，".join(article.tags)}'
+        )
+
+
+class Application:
+    def __init__(self) -> None:
+        self.all_articles = BlogArticles().getAllArticleMetadata()
+        self.arguments = vars(self.initArgumentParser())
+        self.all_tags = set(
+            list(chain.from_iterable([i.tags for i in self.all_articles]))
+        )
+        self.all_categories = set([i.category for i in self.all_articles])
+
+    def initArgumentParser(self):
+        argument_parser = ArgumentParser()
+        argument_parser.add_argument(
+            "-l",
+            "--list",
+            type=str,
+            help="Show data",
+            choices=["articles", "tags", "category"],
+        )
+        argument_parser.add_argument(
+            "-b", "--build", type=str, help="Build blog", choices=["all", "spec"]
+        )
+        argument_parser.add_argument(
+            "-c", "--create", type=str, help="Create article, input title"
+        )
+        argument_parser.add_argument(
+            # delete : prompt and delete article
+            # update : edit chksum.list and force re-render this article
+            "-e",
+            "--edit",
+            type=str,
+            help="Edit articles",
+            choices=["delete", "update"],
+        )
+        return argument_parser.parse_args()
+
+    def command_list(self) -> None:
+        match self.arguments.get("list"):
+            case "articles":
+                print("---All articles---")
+                for index, item in enumerate(self.all_articles):
+                    Printer.pretty_print_article(item, index + 1)
+            case "tags":
+                print("----All tags----")
+                for i in self.all_tags:
+                    print(f"{len([j for j in self.all_articles if i in j.tags])} {i}")
+            case "category":
+                print("---All categories---")
+                for i in self.all_categories:
+                    print(
+                        f"{i} {len([j for j in self.all_articles if j.category == i])}"
+                    )
+
+    def command_build(self) -> None:
+        match self.arguments.get("build"):
+            case "all":
+                try:
+                    result = call(["./bootstrip.sh"], timeout=60)
+                except TimeoutExpired:
+                    print("Failed! The build script took too long.")
+                    return
+                print("\nSucceed" if result == 0 else "\nFailed.")
+            case "spec":
+                # Just run build.py
+                try:
+                    BlogGen()
+                except Exception as e:
+                    print("Error!" + str(e))
+
+    def command_create(self) -> None:
+        article_title = str(self.arguments.get("create")).replace("_", "-")
+        if article_title in [x.title for x in self.all_articles]:
+            print(f"This article {article_title} exists!")
+            return
+        # Generate dirs
+        try:
+            os.mkdir(os.path.join("src", "articles", article_title))
+            os.mkdir(os.path.join("src", "articles", article_title, "assets"))
+        except FileExistsError:
+            print("File exists. Ignore it.")
+        # Prompt tags and category
+        print("Choose tags:\n")
+        tags = list()
+        print("・".join(self.all_tags))
+        while (tagName := input("[{count}]Input tag:".format(count=len(tags)))) != "":
+            tags.append(tagName.strip().replace(" ", ""))
+            print("Now we have:" + str(tags))
+
+        print("-" * 36)
+        print("Choose category:")
+        print("・".join(self.all_categories))
+        category = input("Input category:").strip().replace(" ", "")
+
+        # Now write Markdown file first
+        try:
+            with open(
+                os.path.join(f"src/articles/{article_title}", f"{article_title}.md"),
+                "w+",
+            ) as fp:
+                fp.write(
+                    Templates.MarkdownFileTemplate.format(
+                        title=article_title,
+                        date=str(datetime.now().strftime("%Y-%m-%d")),
+                        tags=str(tags).replace("'", ""),
+                        category=category if category != "" else "未分类",
+                    )
+                )
+                fp.flush()
+                fp.close()
+        except Exception:
+            print("Error!")
+            return
+
+        # Now write toml file
+        article_uuid = str(uuid4())
+        try:
+            with open(
+                os.path.join(f"src/articles/{article_title}", "config.toml"), "w+"
+            ) as fp:
+                fp.write(
+                    Templates.TOMLFileTemplate.format(
+                        title=article_title,
+                        uuid=article_uuid,
+                        created=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        tags=str(tags),
+                        category=f'"{category}"',
+                    )
+                )
+                fp.flush()
+                fp.close()
+        except Exception as e:
+            print("Error!" + str(e))
+            return
+
+        print(f"Done!\nNow check src/articles/{article_title}")
+
+    def command_edit(self) -> None:
+        def stripCheckSum(targetTitle) -> None:
+            result = [
+                x
+                for x in open("./chksum.list").readlines()
+                if len(x.split()) == 2 and x.split()[-1] != targetTitle
+            ]
+            with open("./chksum.list", "w") as fp:
+                fp.writelines(result)
+                fp.flush()
+                fp.close()
+
+        # Prompt what to delete
+        for index, item in enumerate(self.all_articles):
+            Printer.pretty_print_article(item, index + 1)
+        try:
+            choose = int(input("Which one to delete ? "))
+        except ValueError:
+            choose = -1
+        if choose <= 0 or choose > len(self.all_articles):
+            print(f"Out of range or invalid integer type {choose}!")
+            return
+        target_item = self.all_articles[choose - 1]
+
+        match self.arguments.get("edit"):
+            case "delete":
+                # now delete both src and output
+                if not input(f"Going to delete article {target_item.title} ?[Y/N]") in [
+                    "Y",
+                    "y",
+                    "Yes",
+                    "YES",
+                ]:
+                    print("Abort")
+                    return
+                shutil.rmtree(
+                    os.path.join("src/articles/", target_item.title), ignore_errors=True
+                )
+                shutil.rmtree(
+                    os.path.join("output/articles/", target_item.title),
+                    ignore_errors=True,
+                )
+                stripCheckSum(
+                    f"./src/articles/{target_item.title}/{target_item.title}.md"
+                )
+                print("Donn.")
+            case "update":
+                stripCheckSum(
+                    f"./src/articles/{target_item.title}/{target_item.title}.md"
+                )
+                print("Donn.")
+
+    @BlogUtils.timeit
+    def run(self) -> None:
+        if self.arguments.get("list", False):
+            self.command_list()
+            exit(0)
+        if self.arguments.get("build", False):
+            self.command_build()
+            exit(0)
+        if self.arguments.get("create", False):
+            self.command_create()
+            exit(0)
+        if self.arguments.get("edit", False):
+            self.command_edit()
+            exit(0)
+
+
+if __name__ == "__main__":
+    Application().run()
