@@ -15,3 +15,9 @@ options:
   -e {delete,update}, --edit {delete,update}
                         Edit articles
 ```
+
+TODO:
+
+- [ ] View count system
+- [ ] Reaction system
+- [ ] Comment system
