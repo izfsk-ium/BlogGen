@@ -45,6 +45,30 @@ class ArticlePatcher:
         self.rawFileContent = self.rawFileContent.replace("<!-- EXTERNS -->", result)
         return self
 
+    def patchWarningFlagsCSS(self):
+        # patch warning flags which control outdated and draft
+        result = ""
+        if not self.targetArticleMetadata.isDraft:
+            result += """
+                <style>
+                    #isDraftWarning{
+                        display: none !important;
+                    }
+                </style>
+            """
+        if not self.targetArticleMetadata.isOutdated:
+            result += """
+                <style>
+                    #isOutdatedWarning{
+                        display: none !important;
+                    }
+                </style>
+            """
+        self.rawFileContent = self.rawFileContent.replace(
+            "<!-- WARNING_FLAGS -->", result
+        )
+        return self
+
     def patchLastModifyDate(self):
         # patch last modify data.
         # replace <!-- LASTMODIFY -->
@@ -53,6 +77,13 @@ class ArticlePatcher:
                 "<!-- LASTMODIFY -->",
                 f"<span class='date before-toc'>Modified:<time>{datetime.now().strftime('%Y-%m-%d %H:%M')}</time></span>",
             )
+        return self
+
+    def patchUUID(self):
+        # patch UUID for each article
+        self.rawFileContent = self.rawFileContent.replace(
+            "<!--UUID-->", f"<UUID>{self.targetArticleMetadata.uuid}</uuid>"
+        )
         return self
 
     def patchCreditInfo(self):
@@ -85,4 +116,4 @@ class ArticlePatcher:
 def _patch_output(arg):
     ArticlePatcher(
         arg
-    ).patchExternCSS().patchCreditInfo().patchLastModifyDate().patchCommentArea().save_file()
+    ).patchUUID().patchExternCSS().patchWarningFlagsCSS().patchCreditInfo().patchLastModifyDate().patchCommentArea().save_file()
